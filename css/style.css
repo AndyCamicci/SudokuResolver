@@ -17,11 +17,13 @@ body {
 #sudoku div {
 	width: 60px;
 	height: 60px;
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(100,100,100,0.1);
 	overflow: hidden;
 	float: left;
 	padding: 5px;
 	position: relative;
+	border-top: 1px solid rgba(0,0,0,0.3);
+	border-left: 1px solid rgba(0,0,0,0.3);
 }
 #sudoku div:nth-child(3n) {
 	margin-right: 60px;
@@ -31,4 +33,16 @@ body {
 }
 #sudoku div:nth-child(27n) {
 	margin-bottom: 60px;
+}
+
+.possible {
+	opacity: 0.3;
+}
+
+.value {
+	text-align: center;
+	font-size: 2em;
+	position: absolute;
+	top: 0;left: 0;right: 0;bottom: 0;
+	margin-top: 15px;
 }
