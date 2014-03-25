@@ -1,0 +1,34 @@
+*, *:before, *:after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+body {
+	font-size: 12px;
+	text-align: center;
+}
+#sudoku {
+	margin: 20px auto;
+	font-size: 1em;
+	display: inline-block;
+}
+
+#sudoku div {
+	width: 60px;
+	height: 60px;
+	background-color: rgba(0,0,0,0.1);
+	overflow: hidden;
+	float: left;
+	padding: 5px;
+	position: relative;
+}
+#sudoku div:nth-child(3n) {
+	margin-right: 60px;
+}
+#sudoku div:nth-child(9n) {
+	float: none;
+}
+#sudoku div:nth-child(27n) {
+	margin-bottom: 60px;
+}
