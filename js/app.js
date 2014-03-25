@@ -13,14 +13,28 @@ $(document).ready(function() {
 		}
 		var _case = null;
 
-		(function(context) {
-			var caseId;
-			$cases.each(function(i) {
-				_case = new Case(i, this);
+		// (function(context) {
+		// 	var caseId;
+		// 	$cases.each(function(i) {
+		// 		_case = new Case(i, this);
+		// 		_case.fill();
+		// 		context.cases.push(_case);
+		// 	});
+		// }(this));
+		var i = 0;
+		for (var row = 0; row < 9; row++) {
+			for (var col = 0; col < 9; col++) {
+				_case = new Case(i, col, row, $cases[i]);
+				_case.setReference(this);
 				_case.fill();
-				context.cases.push(_case);
-			});
-		}(this));
+				this.cases.push(_case);
+				i++;
+			}
+		}
+
+		for(var i = 0; i < this.cases.length; i++ ) {
+			this.cases[i].getGroups();
+		}
 
 		this.createRealGrid();
 		this.emptyGridFromDefinedValues();
@@ -72,7 +86,7 @@ $(document).ready(function() {
 
 		var len = this.grid.length;
 		for (var i = 0; i < len; i++)
-		{
+		{	
 			this.getCase(this.grid[i][0]).setValue(this.grid[i][1]);
 		}
 	};
@@ -85,10 +99,10 @@ $(document).ready(function() {
 		}
 	};
 
-	var Case = function(id, caseId, elem) {
+	var Case = function(id, colId, rowId, elem) {
 		this.id = id;
-		this.rowId;
-		this.colId;
+		this.row = rowId;
+		this.col = colId;
 		this.caseId;
 		this.$el = $(elem);
 		this.$valueEl = null;
@@ -100,10 +114,11 @@ $(document).ready(function() {
 			context.$valueEl = $('<span>').attr('class', 'value');
 			context.$el.append(context.$valueEl);
 			context.$el.on('click', $.proxy(context.clicked, context));
-
-			// Calculate on which vertical column is it
-			
 		})(this);
+	};
+
+	Case.prototype.setReference = function(ctx) {
+		this._Sudoku = ctx;
 	};
 
 	Case.prototype.fill = function() {
@@ -130,14 +145,62 @@ $(document).ready(function() {
 		this.process();
 	};
 
-	Case.prototype.process = function() {
-		console.log(this.caseId);
-		// Group
-		var group = this.getGroupIds()
+	Case.prototype.getGroups = function() {
+		// Line horizontal
+		var idFirst = this.id - this.id%9;
+		var idLast = idFirst + 8;
+		
+		this.groupH = [];
+		for (var i = idFirst; i <= idLast; i++) {
+			this.groupH.push(this._Sudoku.getCase(i));
+		}
+
+		// Line vertical
+		idFirst = this.id - (this.row * 9);
+		idLast = idFirst + (9*8);
+
+		this.groupV = [];
+		for (var i = idFirst; i <= idLast; i+=9) {
+			this.groupV.push(this._Sudoku.getCase(i));
+		}
+
+		// Block
+		this.groupB = [];
+		var firstRow = this.row - (this.row%3);
+		var firstCol = this.col - (this.col%3);
+		for (var row = firstRow; row < firstRow + 3; row++) {
+			for (var col = firstCol; col < firstCol + 3; col++) {
+				this.groupB.push(this._Sudoku.getCase( row * 9 + col ));
+			}
+		}
 	};
 
-	Case.prototype.getGroupIds = function() {
+	Case.prototype.process = function() {
+		console.log(this);
+		this.highlightGroups();
 
+	};
+
+	Case.prototype.highlightGroups = function() {
+		var len = this.groupB.length;
+		while(len--) {
+			this.groupB[len].highlight();
+		}
+
+		len = this.groupV.length;
+		while(len--) {
+			this.groupV[len].highlight();
+		}
+
+		len = this.groupH.length;
+		while(len--) {
+			this.groupH[len].highlight();
+		}
+	};
+
+	Case.prototype.highlight = function() {
+		console.log('hi');
+		this.$el.addClass('highlight');
 	};
 
 
