@@ -37,7 +37,6 @@ $(document).ready(function() {
 		}
 
 		this.createRealGrid();
-		this.emptyGridFromDefinedValues();
 	};
 
 	Sudoku.prototype.getCase = function(id) {
@@ -88,15 +87,29 @@ $(document).ready(function() {
 		for (var i = 0; i < len; i++)
 		{	
 			this.getCase(this.grid[i][0]).setValue(this.grid[i][1]);
+			this.getCase(this.grid[i][0]).emptyPossible();
 		}
 	};
 
-	Sudoku.prototype.emptyGridFromDefinedValues = function() {
-		var len = this.grid.length;
-		for (var i = 0; i < len; i++)
+	Sudoku.prototype.resolve = function() {
+		console.time('Resolve');
+		console.log('Step 1, remove values from block and lines linked...');
+		var len = this.cases.length;
+
+		var _len = len;
+		while(_len--)
 		{
-			this.getCase(this.grid[i][0]).emptyPossible();
+			this.cases[_len].process();
 		}
+
+		console.log('Step 2');
+		_len = len;
+		while(_len--)
+		{
+			this.cases[_len].processStep2();
+		}
+		
+		console.timeEnd('Resolve');
 	};
 
 	var Case = function(id, colId, rowId, elem) {
@@ -128,7 +141,8 @@ $(document).ready(function() {
 
 	Case.prototype.setValue = function(val) {
 		this.value = val;
-		this.$valueEl.html(this.value);
+		this.emptyPossible();
+		this.update();
 	}
 
 	Case.prototype.emptyPossible = function() {
@@ -177,10 +191,62 @@ $(document).ready(function() {
 
 	Case.prototype.process = function() {
 		// this.highlightGroups(true);
-		this.removePossibleValues();
+		if (this.value) this.removePossibleValues();
 		// this.highlightGroups(false);
-
 	};
+
+	Case.prototype.processStep2 = function() {
+		if (this.possible.length == 0) return;
+
+		// var len = this.groupB.length;
+		// var _len = len;
+		// var alone = true;
+		// for (var i = 0; i < this.possible.length; i++) {
+		// 	_len = len;
+		// 	while(_len--)
+		// 	{
+		// 		alone = true;
+		// 		if (this.groupB[_len].possible.indexOf(this.possible[i]) == -1)
+		// 		{
+		// 			alone = false;
+		// 		}
+		// 		if (alone) {
+		// 			this.setValue(this.possible[i]);
+		// 		}
+		// 	}
+		// }
+
+		// FOR EACH POSSIBLE VALUE OF THE CASE
+			// CHECK ALL THE GROUP CASES IF THEY HAVE THIS VALUE
+			// IF A CASE HAVE IT
+				// THE CASE IS NOT UNIQUE
+			// NO CASE HAVE IT ?
+				// THE CASE IS UNIQUE, APPLY THE VALUE
+
+		var possibleLength = this.possible.length;
+		var groupLength = this.groupB.length;
+		var unique = true;
+		for (var possible = 0; possible < possibleLength; possible++) 
+		{
+			unique = true;
+			for (var group = 0; group < groupLength; group++)
+			{
+				if (!this.groupB[group].value && this.id != this.groupB[group].id) {
+					// console.log(this.id, 'compare', this.groupB[group].possible.join(', '), 'with', this.possible[possible]);
+					if (this.groupB[group].possible.indexOf(this.possible[possible]) > -1) {
+						unique = false;
+					}
+
+				} 
+			}
+
+			if (unique) {
+				console.log('the value', this.possible[possible], 'is unique.', 'id : ', this.id);
+				this.setValue(this.possible[possible]);
+			}
+		}
+	};
+
 	Case.prototype.removePossibleValues = function() {
 		var value = this.value;
 
@@ -237,4 +303,5 @@ $(document).ready(function() {
 
 	var app = new Sudoku();
 	app.init();
+	app.resolve();
 });
