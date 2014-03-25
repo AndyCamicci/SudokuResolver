@@ -137,7 +137,7 @@ $(document).ready(function() {
 	};
 
 	Case.prototype.update = function() {
-		this.$guessElement.html(this.possible);
+		this.$guessElement.html(this.possible.join(' '));
 		this.$valueEl.html(this.value);
 	};
 
@@ -176,31 +176,61 @@ $(document).ready(function() {
 	};
 
 	Case.prototype.process = function() {
-		console.log(this);
-		this.highlightGroups();
+		// this.highlightGroups(true);
+		this.removePossibleValues();
+		// this.highlightGroups(false);
 
 	};
+	Case.prototype.removePossibleValues = function() {
+		var value = this.value;
 
-	Case.prototype.highlightGroups = function() {
 		var len = this.groupB.length;
 		while(len--) {
-			this.groupB[len].highlight();
+			this.groupB[len].removePossibleValue(value);
 		}
 
 		len = this.groupV.length;
 		while(len--) {
-			this.groupV[len].highlight();
+			this.groupV[len].removePossibleValue(value);
 		}
 
 		len = this.groupH.length;
 		while(len--) {
-			this.groupH[len].highlight();
+			this.groupH[len].removePossibleValue(value);
 		}
 	};
 
-	Case.prototype.highlight = function() {
-		console.log('hi');
-		this.$el.addClass('highlight');
+	Case.prototype.highlightGroups = function(active) {
+		var len = this.groupB.length;
+		while(len--) {
+			this.groupB[len].highlight(active);
+		}
+
+		len = this.groupV.length;
+		while(len--) {
+			this.groupV[len].highlight(active);
+		}
+
+		len = this.groupH.length;
+		while(len--) {
+			this.groupH[len].highlight(active);
+		}
+	};
+
+	Case.prototype.highlight = function(active) {
+		if (active)  {
+			this.$el.addClass('highlight');
+		} else {
+			this.$el.removeClass('highlight');
+		}
+	};
+
+	Case.prototype.removePossibleValue = function(val) {
+		var index = this.possible.indexOf(val);
+		if (index > -1) {
+			this.possible.splice(index, 1);
+		}
+		this.update();
 	};
 
 
